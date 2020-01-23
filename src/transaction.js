@@ -15,10 +15,10 @@ const ALGORAND_MAX_ASSET_DECIMALS = 19;
  * */
 class Transaction {
     constructor({from, to, fee, amount, firstRound, lastRound, note, genesisID, genesisHash, lease,
-                 closeRemainderTo, voteKey, selectionKey, voteFirst, voteLast, voteKeyDilution, 
+                 closeRemainderTo, voteKey, selectionKey, voteFirst, voteLast, voteKeyDilution,
                  assetIndex, assetTotal, assetDecimals, assetDefaultFrozen, assetManager, assetReserve,
                  assetFreeze, assetClawback, assetUnitName, assetName, assetURL, assetMetadataHash,
-                 freezeAccount, freezeState, assetRevocationTarget, type="pay", flatFee=false}) {
+                 freezeAccount, freezeState, assetRevocationTarget, type="pay", flatFee=false, group}) {
         this.name = "Transaction";
         this.tag = Buffer.from("TX");
 
@@ -80,8 +80,7 @@ class Transaction {
             this.fee = ALGORAND_MIN_TX_FEE;
         }
 
-        // say we are aware of groups
-        this.group = undefined;
+        this.group = group;
     }
 
     get_obj_for_encoding() {
@@ -159,7 +158,8 @@ class Transaction {
                     "t": this.assetTotal,
                     "df": this.assetDefaultFrozen,
                     "dc": this.assetDecimals,
-                }
+                },
+                "grp": this.group
             };
             if (this.assetManager !== undefined) txn.apar.m = Buffer.from(this.assetManager.publicKey);
             if (this.assetReserve !== undefined) txn.apar.r = Buffer.from(this.assetReserve.publicKey);
@@ -223,7 +223,8 @@ class Transaction {
                 "gen": this.genesisID,
                 "gh": this.genesisHash,
                 "lx": Buffer.from(this.lease),
-                "xaid": this.assetIndex
+                "xaid": this.assetIndex,
+                "grp": this.group
             };
             if (this.closeRemainderTo !== undefined) txn.aclose = Buffer.from(this.closeRemainderTo.publicKey);
             if (this.assetRevocationTarget !== undefined) txn.asnd = Buffer.from(this.assetRevocationTarget.publicKey);
@@ -252,7 +253,8 @@ class Transaction {
                 "gh": this.genesisHash,
                 "lx": Buffer.from(this.lease),
                 "faid": this.assetIndex,
-                "afrz": this.freezeState
+                "afrz": this.freezeState,
+                "grp": this.group
             };
             if (this.freezeAccount !== undefined) txn.fadd = Buffer.from(this.freezeAccount.publicKey);
             // allowed zero values
